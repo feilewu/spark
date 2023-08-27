@@ -27,12 +27,15 @@ void initRowWithoutBuff(NativeRow* rowPtr, int32 numFields) {
 
 void initRowWithBuff(NativeRow* rowPtr, int32 numFields) {
   initRowWithoutBuff(rowPtr, numFields);
-  int32 roundedSize = roundNumberOfBytesToNearestWord(numFields);
+  int32 roundedSize = rowPtr->bitSetWidthInBytes + roundNumberOfBytesToNearestWord(numFields);
   rowPtr->base = (byte*)malloc(sizeof(byte)*roundedSize);
   rowPtr->sizeInBytes = roundedSize;
 }
 
 void freeRow(NativeRow* row) {
+  if (row == NULL) {
+    return;
+  } 
   if (row->base != NULL) {
     free(row->base);
     row->base = NULL;
@@ -41,6 +44,16 @@ void freeRow(NativeRow* row) {
   row->numFields = 0;
   row->sizeInBytes = 0;
 }
+
+void freeRows(NativeRow* rows, int32 len) {
+  if (rows == NULL) {
+    return;
+  }
+  for(int i= 0;i<len;i++) {
+    freeRow(rows+i);
+  }
+}
+
 
 void readShortFromRow(NativeRow* row, int32 ordinal, void* result) {
     byte* base = row->base;
@@ -67,10 +80,25 @@ void writeShortToRow(NativeRow* row, int32 ordinal, void* input) {
 }
 
 
-NativeRowBatch compute(NativeRowBatch batch){
-
+void initNativeRowBatch(NativeRowBatch* batch, int32 len) {
+  batch->len = len;
+  if (len == 0){
+    batch->rows = NULL;
+  } else {
+    batch->rows = malloc(sizeof(NativeRow)*len);
+  } 
 }
 
-void freeNativeRowBatch(NativeRowBatch batch){
-
+void freeNativeRowBatch(NativeRowBatch batch) {
+  if (batch.rows == NULL) {
+    return;
+  }
+  int32 len = batch.len;
+  for(int i=0;i<len;i++){
+    NativeRow row = *(batch.rows+i);
+    freeRow(&row);
+  }
+  free(batch.rows);
+  batch.rows = NULL;
+  batch.len = 0;
 }

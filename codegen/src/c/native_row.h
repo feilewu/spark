@@ -35,6 +35,8 @@ void initRowWithBuff(NativeRow* rowPtr, int32 numFields);
 
 void freeRow(NativeRow* row);
 
+void freeRows(NativeRow* rows, int32 len);
+
 typedef void (*ReadRowFieldFunc)(NativeRow*,int32,void*);
 
 void readRowField(NativeRow* row, int32 ordinal, ReadRowFieldFunc func, void* result);
@@ -56,7 +58,8 @@ typedef struct _native_row_batch
 
 } NativeRowBatch;
 
-NativeRowBatch compute(NativeRowBatch batch);
+
+void initNativeRowBatch(NativeRowBatch* batch, int32 len);
 
 void freeNativeRowBatch(NativeRowBatch batch);
 

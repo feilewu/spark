@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<assert.h>
-#include "native_row_writer.h"
-
+// #include "native_row_writer.h"
+#include "compute.h"
 
 void testRowBaseWriteAndRead() {
 
@@ -41,10 +41,30 @@ void testRowWriter() {
     printf("testRowWriter() end! \n");
 }
 
+void testCompute() {
+    printf("begin to testCompute() \n");
+
+    NativeRowBatch inputBatch;
+    initNativeRowBatch(&inputBatch, 1);
+    NativeRowBatch outputBatch = compute(inputBatch);
+
+    freeNativeRowBatch(inputBatch);
+
+    short value = 0;
+    NativeRow row = *outputBatch.rows;
+    readShortFromRow(&row,0,&value);
+
+    assert(value == (short)100);
+
+    printf("testCompute() end! \n");
+
+}
+
 
 int main(){
    printf("hello world!\n");
    testRowBaseWriteAndRead();
    testRowWriter();
+   testCompute();
    return 0;
 }
