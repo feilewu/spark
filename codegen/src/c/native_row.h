@@ -1,7 +1,13 @@
+#include<stddef.h>
+#include<stdlib.h>
+
 typedef char byte;
+
+typedef short int16;
 
 typedef int int32;
 
+typedef long long int64;
 
 typedef struct _native_row
 {
@@ -17,6 +23,29 @@ typedef struct _native_row
 
 } NativeRow;
 
+int32 getFieldOffset(NativeRow* row, int32 ordinal);
+
+int32 calculateBitSetWidthInBytes(int32 numFields);
+
+int64 roundNumberOfBytesToNearestWord(int64 numBytes);
+
+void initRowWithoutBuff(NativeRow* rowPtr, int32 numFields);
+
+void initRowWithBuff(NativeRow* rowPtr, int32 numFields);
+
+void freeRow(NativeRow* row);
+
+typedef void (*ReadRowFieldFunc)(NativeRow*,int32,void*);
+
+void readRowField(NativeRow* row, int32 ordinal, ReadRowFieldFunc func, void* result);
+
+void readShortFromRow(NativeRow* row, int32 ordinal, void* result);
+
+typedef void (*WriteRowFieldFunc)(NativeRow*,int32,void*);
+
+void writeRowField(NativeRow* row, int32 ordinal, WriteRowFieldFunc func, void* input);
+
+void writeShortToRow(NativeRow* row, int32 ordinal, void* input);
 
 typedef struct _native_row_batch
 {
@@ -26,6 +55,11 @@ typedef struct _native_row_batch
     int32 len;
 
 } NativeRowBatch;
+
+NativeRowBatch compute(NativeRowBatch batch);
+
+void freeNativeRowBatch(NativeRowBatch batch);
+
 
 
 
